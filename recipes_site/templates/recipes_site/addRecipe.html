@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+
+{% load staticfiles %}
+{% load set_var %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Recipe</title>
+    <script>
+        function addQuantity(parent) {
+            "use strict";
+            var xhttp = new XMLHttpRequest();
+            var id = "quantity-" + parent.id;
+            xhttp.onreadystatechange = function () {
+                if (xhttp.readyState === 4 && xhttp.status === 200) {
+                    var quantity = document.getElementById(id);
+                    $(quantity).append(xhttp.responseText);
+                    var lastChild = quantity.children[quantity.children.length - 1];
+                    var ingredient = lastChild.querySelectorAll('[name=ingredient]')[0];
+                    $(ingredient).chosen()
+                }
+            };
+            xhttp.open("GET", "{% url 'recipes_site:add-quantity' '0' %}".replace(0,document.getElementById(id).children.length), true);
+            xhttp.send();
+        }
+        function addMoment() {
+            "use strict";
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (xhttp.readyState === 4 && xhttp.status === 200) {
+                    $("#moment").append(xhttp.responseText);
+                    $("#moment select:last").chosen()
+                }
+            };
+            xhttp.open("GET", "{% url 'recipes_site:add-moment' '0' %}".replace(0,document.getElementById("moment").children.length), true);
+            xhttp.send();
+        }
+
+    </script>
+    <script src="{% static 'recipes_site/script.js' %}"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+
+    <script src="{% static 'recipes_site/chosen.jquery.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'recipes_site/chosen.css' %}" />
+    <link rel="stylesheet" href="{% static 'recipes_site/style.css' %}" />
+    <script>
+    $( document ).ready(function() {
+        $("#moment select:last").last().chosen();
+    });
+    </script>
+</head>
+<body>
+<form id="recipe">
+    {{ form }}
+
+    <div id="moment">
+        {% set i = 0 %}
+        {% for moment in moments %}
+        <fieldset id="{{ i }}">
+            <legend>Moment</legend>
+            {{ moment }}
+            <div id="quantity-{{ i }}"></div>
+            <image onclick="addQuantity(this.parentNode)" style="height:30px;cursor:pointer;" src="{% static 'recipes_site/minus-clipart-green-plus-md.png' %}" />
+        </fieldset>
+        {% set i = i + 1 %}
+        {% endfor %}
+    </div>
+    <image onclick="addMoment()" style="height:30px;cursor:pointer;" src="{% static 'recipes_site/minus-clipart-green-plus-md.png' %}" />
+    <input type="button" value="Submit" onclick="addRecipe('/rest/recipes/')" />
+</form>
+</body>
+</html>

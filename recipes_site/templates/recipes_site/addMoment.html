@@ -1,0 +1,8 @@
+{% load staticfiles %}
+
+<fieldset id="{{id}}">
+    <legend>{{ name }}</legend>
+    {{ form }}
+    <div id="quantity-{{ id }}"></div>
+    <image onclick="addQuantity(this.parentNode)" style="height:30px;cursor:pointer;" src="{% static 'recipes_site/minus-clipart-green-plus-md.png' %}" />
+</fieldset>

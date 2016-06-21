@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+
+{% load staticfiles %}
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static 'recipes_site/style.css' %}" />
+
+    <title>Recipe</title>
+
+    <script src="{% static 'recipes_site/script.js' %}">
+    </script>
+    <style type="text/css">
+        div.inline { float:left; }
+        .clearBoth { clear:both; }
+    </style>
+</head>
+<body>
+<div class="inline" style="width:30%;max-width:200px">
+    {% if latest_question_list %}
+    <ul>
+        {% for recipe in latest_question_list %}
+        <li><a class="menu" onclick="loadRecipe('/recipes/{{ recipe.id }}/', this)">{{ recipe.name }}</a></li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+<div class="inline" style="width:70%;" id="recipe"></div>
+</body>
+</html>
