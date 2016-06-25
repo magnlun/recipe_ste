@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 
 {% load staticfiles %}
-{% load set_var %}
 
 <html lang="en">
 <head>
@@ -11,17 +10,16 @@
         function addQuantity(parent) {
             "use strict";
             var xhttp = new XMLHttpRequest();
-            var id = "quantity-" + parent.id;
             xhttp.onreadystatechange = function () {
                 if (xhttp.readyState === 4 && xhttp.status === 200) {
-                    var quantity = document.getElementById(id);
+                    var quantity = parent.querySelectorAll('[name=quantity]')[0];
                     $(quantity).append(xhttp.responseText);
                     var lastChild = quantity.children[quantity.children.length - 1];
                     var ingredient = lastChild.querySelectorAll('[name=ingredient]')[0];
                     $(ingredient).chosen()
                 }
             };
-            xhttp.open("GET", "{% url 'recipes_site:add-quantity' '0' %}".replace(0,document.getElementById(id).children.length), true);
+            xhttp.open("GET", "{% url 'recipes_site:add-quantity' %}", true);
             xhttp.send();
         }
         function addMoment() {
@@ -33,7 +31,7 @@
                     $("#moment select:last").chosen()
                 }
             };
-            xhttp.open("GET", "{% url 'recipes_site:add-moment' '0' %}".replace(0,document.getElementById("moment").children.length), true);
+            xhttp.open("GET", "{% url 'recipes_site:add-moment' %}", true);
             xhttp.send();
         }
 
@@ -55,16 +53,12 @@
     {{ form }}
 
     <div id="moment">
-        {% set i = 0 %}
-        {% for moment in moments %}
-        <fieldset id="{{ i }}">
+        <fieldset>
             <legend>Moment</legend>
             {{ moment }}
-            <div id="quantity-{{ i }}"></div>
+            <div name="quantity"></div>
             <image onclick="addQuantity(this.parentNode)" style="height:30px;cursor:pointer;" src="{% static 'recipes_site/minus-clipart-green-plus-md.png' %}" />
         </fieldset>
-        {% set i = i + 1 %}
-        {% endfor %}
     </div>
     <image onclick="addMoment()" style="height:30px;cursor:pointer;" src="{% static 'recipes_site/minus-clipart-green-plus-md.png' %}" />
     <input type="button" value="Submit" onclick="addRecipe('/rest/recipes/')" />

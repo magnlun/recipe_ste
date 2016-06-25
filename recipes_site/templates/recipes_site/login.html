@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+{% load staticfiles %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="{% static 'recipes_site/style.css' %}" />
+    <script>
+        function login() {
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+
+            var credentials = {};
+            credentials.username = username;
+            credentials.password = password;
+            var json = JSON.stringify(credentials);
+
+            $.ajax( {
+                url: '/rest/api-token-auth/',
+                contentType: 'application/json',
+                data: json,
+                method: "POST",
+                error: function(data) {
+                    $(document.getElementById("errorText")).html(data.responseJSON.non_field_errors[0]);
+                },
+                success: function(data) {
+                    $(document.getElementById("errorText")).html(data.token);
+                    //$.cookie("token",data.token);
+                    document.cookie = "token=" + encodeURIComponent(data.token)
+                    window.location.replace( {% url 'recipes_site:index' %} );
+                }
+            });
+
+        }
+    </script>
+</head>
+<body>
+<p>Username:</p><input id="username"/><br />
+<p>Password:</p><input type="password" id="password" /><br />
+<p id="errorText"></p>
+<input type="button" value="Login" onclick="login()"/>
+</body>
+</html>

@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.annotate(sec_time=F('time')*F('time_unit__seconds'))
     serializer_class = RecipeSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly)
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = RecipeFilter
 
@@ -37,11 +37,7 @@ class QuantityViewSet(mixins.CreateModelMixin,
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly)
 
 
-class MomentViewSet(mixins.CreateModelMixin,
-                    mixins.RetrieveModelMixin,
-                    mixins.DestroyModelMixin,
-                    mixins.UpdateModelMixin,
-                    viewsets.GenericViewSet):
+class MomentViewSet(viewsets.ModelViewSet):
     queryset = Moment.objects.all()
     serializer_class = MomentSerializer
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly)

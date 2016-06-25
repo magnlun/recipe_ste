@@ -16,10 +16,10 @@
 </head>
 <body>
 <div class="inline" style="width:30%;max-width:200px">
-    {% if latest_question_list %}
+    {% if recipes %}
     <ul>
-        {% for recipe in latest_question_list %}
-        <li><a class="menu" onclick="loadRecipe('/recipes/{{ recipe.id }}/', this)">{{ recipe.name }}</a></li>
+        {% for recipe in recipes %}
+            <li><a class="menu" onclick="loadRecipe('/recipes/{{ recipe.id }}/', this)">{{ recipe.name }}</a></li>
         {% endfor %}
     </ul>
     {% endif %}

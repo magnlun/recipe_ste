@@ -5,6 +5,8 @@ from itertools import chain
 
 
 class RecipeForm(ModelForm):
+    source = forms.CharField()
+
     class Meta:
         model = Recipe
         exclude = ('creator',)
@@ -27,13 +29,12 @@ class QuantityForm(ModelForm):
     comment = forms.CharField()
     comment.widget = forms.TextInput(attrs={'name':'comment'})
 
-    def __init__(self):
-        set = list(chain((('',''), ), Ingredient.objects.values_list('id', 'name')))
+    def __init__(self, ingredients):
         settings = {'data-placeholder':'Choose an ingredient','class':'chosen-select',}
         self.ingredient = forms.ChoiceField()
-        self.ingredient.widget = forms.Select(choices=set,
+        self.ingredient.widget = forms.Select(choices=ingredients,
                                      attrs=settings)
-        super().__init__();
+        super().__init__()
 
     class Meta:
         model = Quantity

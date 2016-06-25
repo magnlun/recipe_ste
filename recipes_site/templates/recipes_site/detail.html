@@ -1,9 +1,10 @@
 <nav>
     <ul id="menu">
-        {% for itr in recipe.moments.all %}
-            <li {% if moment.first.moment.name == itr.name %}id="selected"{% endif %} onclick="loadDoc('{{ itr.name }}', '{%url 'recipes_site:instructions' itr.id %}')">{{ itr.name }}</li>
+        {% for itr in recipe.moments %}
+        <li {% if moment.name == itr.name %}id="selected"{% endif %} onclick="loadDoc('{{ itr.name }}', '{%url 'recipes_site:instructions' itr.id %}')">{{ itr.name }}</li>
         {% endfor %}
     </ul>
 </nav>
 <section id="content" style="padding:10px">
+    {% include 'recipes_site/instructions.html' %}
 </section>

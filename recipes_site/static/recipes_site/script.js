@@ -22,7 +22,7 @@
         function addRecipe(url) {
             var form = document.forms["recipe"];
             var recipe = {};
-            recipe.name = form.name.value;
+            recipe.name = form.name[0].value;
             recipe.description = form.description.value;
             recipe.time = form.time.value;
             recipe.time_unit = form.time_unit.options[ form.time_unit.selectedIndex ].text
@@ -33,9 +33,9 @@
             for( var i = 0; i < formMoments.length; i++ ) {
                 var prefix = "id_" + i + "-";
                 var moment = {};
-                moment.name = document.getElementById( prefix + "name").value;
-                moment.extra_ingredients = getSelectValues(document.getElementById( prefix + "extra_ingredients") )
-                moment.instructions = document.getElementById( prefix + "instructions" ).value;
+                moment.name = formMoments[i].querySelectorAll('[name=name]')[0].value;
+                moment.extra_ingredients = getSelectValues(formMoments[i].querySelectorAll('[name=extra_ingredients]')[0])
+                moment.instructions = formMoments[i].querySelectorAll('[name=instructions]')[0].value;
                 momentQuantities = formMoments[i].getElementsByTagName("fieldset");
                 moment.ingredients = [];
                 for( var j = 0; j < momentQuantities.length; j++ ) {
@@ -89,14 +89,16 @@
             if (xhttp.readyState === 4 && xhttp.status === 200) {
                 document.getElementById("recipe").innerHTML = xhttp.responseText;
                 document.getElementById("selected").onclick();
+                var old = document.getElementsByClassName("bold");
+                if( old !== null )
+                {
+                    for( var i=0, iLen = old.length; i < iLen; i++) {
+                        old[i].className = "menu";
+                    }
+                }
+                button.className = "bold";
             }
         };
-        var old = document.getElementById("bold");
-        if( old !== null )
-        {
-            old.id = "";
-        }
-        button.id = "bold";
         xhttp.open("GET", url, true);
         xhttp.send();
     }

@@ -1,13 +1,23 @@
 from rest_framework import serializers
+from rest_framework.metadata import BaseMetadata
 from django.db import transaction
 
 from recipes_models.models import *
 
 
+class IngredientMetadata(BaseMetadata):
+    def determine_metadata(self, request, view):
+        return {
+            'display_name': view.get_view_name(),
+            'value': view.id
+        }
+
+
 class IngredientSerializer(serializers.ModelSerializer):
+    metadata_class = IngredientMetadata
     class Meta:
         model = Ingredient
-        fields = ('url', 'name',)
+        fields = ('id', 'url', 'name',)
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -40,7 +50,7 @@ class MomentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Moment
-        fields = ('url', 'name', 'ingredients', 'extra_ingredients', 'instructions', )
+        fields = ('id', 'url', 'name', 'ingredients', 'extra_ingredients', 'instructions', )
 
 
 class DynamicFieldsModelSerializer(serializers.ModelSerializer):
@@ -79,26 +89,26 @@ class RecipeSerializer(DynamicFieldsModelSerializer):
     )
 
     @transaction.atomic
-    def create(self, validated_data):
+    def create(self, validated_data, commit=True, *args, **kwargs):
         moments = validated_data.pop('moments')
         categories = validated_data.pop('category')
-        recipe = Recipe.objects.create(**validated_data)
+        recipe = Recipe.objects.create(commit=commit, **validated_data)
         recipe.category = categories
         for jsonMoment in moments:
             quantities = jsonMoment.pop('quantity_set')
             extra_ingredients = jsonMoment.pop('extra_ingredients')
-            moment = Moment.objects.create(recipe=recipe, **jsonMoment)
+            moment = Moment.objects.create(commit=commit, recipe=recipe, **jsonMoment)
             for ingredient in extra_ingredients:
                 moment.extra_ingredients.add(Ingredient.objects.get(name=ingredient))
             for quantity in quantities:
-                Quantity.objects.create(moment=moment, **quantity)
-            moment.save()
-        recipe.save()
+                Quantity.objects.create(commit=commit, moment=moment, **quantity)
+            moment.save(commit=commit)
+        recipe.save(commit=commit)
         return recipe
 
     class Meta:
         model = Recipe
-        fields = ('url', 'name', 'description', 'creator', 'time', 'time_unit', 'category', 'moments')
+        fields = ('id', 'url', 'name', 'description', 'creator', 'time', 'time_unit', 'category', 'moments')
 
 
 class UserSerializer(serializers.ModelSerializer):

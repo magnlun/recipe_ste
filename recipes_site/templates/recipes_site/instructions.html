@@ -1,14 +1,14 @@
 <table>
-    {% for ingredient in quantities %}
+    {% for ingredient in moment.ingredients %}
 
     <tr>
         <td>{{ ingredient.amount }} {{ ingredient.unit }}</td>
-        <td>{{ ingredient.ingredient.name }} {% if ingredient.comment %} ({{ ingredient.comment }}) {%endif%}</td>
+        <td>{{ ingredient.ingredient }} {% if ingredient.comment %} ({{ ingredient.comment }}) {%endif%}</td>
     </tr>
     {% endfor %}
     {% if moment.extra_ingredients.all %}
         <tr><td></td><td>
-            {{ moment.extra_ingredients.all | join:", " }}
+            {{ moment.extra_ingredients | join:", " }}
         </td>
 
         </tr>
@@ -18,6 +18,6 @@
     {% if moment.instructions %}
     {{ moment.instructions|linebreaks }}
     {% else %}
-    {{ moment.recipe.description|linebreaks }}
+    {{ recipe.description|linebreaks }}
     {% endif %}
 </p>
