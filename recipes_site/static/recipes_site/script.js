@@ -25,7 +25,7 @@
             recipe.name = form.name[0].value;
             recipe.description = form.description.value;
             recipe.time = form.time.value;
-            recipe.time_unit = form.time_unit.options[ form.time_unit.selectedIndex ].text
+            recipe.time_unit = form.time_unit.options[ form.time_unit.selectedIndex ].text;
             recipe.category = getSelectValues(form.category);
             recipe.source = form.source.value;
             recipe.moments = [];
@@ -34,7 +34,7 @@
                 var prefix = "id_" + i + "-";
                 var moment = {};
                 moment.name = formMoments[i].querySelectorAll('[name=name]')[0].value;
-                moment.extra_ingredients = getSelectValues(formMoments[i].querySelectorAll('[name=extra_ingredients]')[0])
+                moment.extra_ingredients = getSelectValues(formMoments[i].querySelectorAll('[name=extra_ingredients]')[0]);
                 moment.instructions = formMoments[i].querySelectorAll('[name=instructions]')[0].value;
                 momentQuantities = formMoments[i].getElementsByTagName("fieldset");
                 moment.ingredients = [];
@@ -56,7 +56,7 @@
                 data: json,
                 method: "POST",
                 beforeSend: function(xhr) {
-                    xhr.setRequestHeader("Authorization", "JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1hZ251cyIsImV4cCI6MTQ2NzA1NTk2MSwiZW1haWwiOiJtYWdudXMubHVuZGJlcmdAcHdueS5zZSIsInVzZXJfaWQiOjF9.DFCmcYnE0XtCKWNw9ri6b5ideavN2bwU6xwDBMgNw9s");
+                    xhr.setRequestHeader("Authorization", "JWT " + Cookies.get("token"));
                 },
                 error: function(data) {
                     document.forms["recipe"].description.value = data;
@@ -88,7 +88,6 @@
         xhttp.onreadystatechange = function () {
             if (xhttp.readyState === 4 && xhttp.status === 200) {
                 document.getElementById("recipe").innerHTML = xhttp.responseText;
-                document.getElementById("selected").onclick();
                 var old = document.getElementsByClassName("bold");
                 if( old !== null )
                 {

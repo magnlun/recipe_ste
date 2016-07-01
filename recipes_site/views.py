@@ -13,24 +13,24 @@ from .forms import *
 def index(request):
     token = request.COOKIES.get('token')
     if not token:
-        return False
-    recipeGet = requests.get("http://localhost:8000/rest/recipes/", auth=
-    JWTAuth(token))
-    if recipeGet.status_code >= 400:
-        return False
-    return render(request, 'recipes_site/index.html', {'recipes': recipeGet.json()})
+        return login(request)
+    recipe_get = requests.get(
+        "http://localhost:8000/rest/recipes/", auth=JWTAuth(token))
+    if recipe_get.status_code >= 400:
+        return login(request)
+    return render(request, 'recipes_site/index.html', {'recipes': recipe_get.json()})
 
 
 @csrf_exempt
 def detail(request, recipe_id):
     token = request.COOKIES.get('token')
     if not token:
-        return False
-    recipeGet = requests.get("http://localhost:8000/rest/recipes/" + recipe_id + "/", auth=
-    JWTAuth(token))
-    if recipeGet.status_code >= 400:
         return login(request)
-    recipe = recipeGet.json()
+    recipe_get = requests.get(
+        "http://localhost:8000/rest/recipes/" + recipe_id + "/", auth=JWTAuth(token))
+    if recipe_get.status_code >= 400:
+        return login(request)
+    recipe = recipe_get.json()
     parameters = {'recipe': recipe,
                   'moment': recipe["moments"][0]}
     return render(request, 'recipes_site/detail.html', parameters)
@@ -40,54 +40,61 @@ def detail(request, recipe_id):
 def instructions(request, moment_id):
     token = request.COOKIES.get('token')
     if not token:
-        return False
-    recipeGet = requests.get("http://localhost:8000/rest/moments/" + moment_id +"/", auth=
-    JWTAuth(token))
-    if recipeGet.status_code >= 400:
         return login(request)
-    moment = recipeGet.json()
-    parameters = {'moment': moment}
+    recipe_get = requests.get(
+        "http://localhost:8000/rest/moments/" + moment_id + "/", auth=JWTAuth(token))
+    if recipe_get.status_code >= 400:
+        return login(request)
+    moment = recipe_get.json()
+    parameters = {'moment': moment, 'recipe': moment}
     return render(request, 'recipes_site/instructions.html', parameters)
 
 
 @csrf_exempt
 def create_recipe(request):
-    if not logged_in(request):
+    token = request.COOKIES.get('token')
+    if not token:
         return login(request)
-    form = RecipeForm()
-    moment = MomentForm()
-    return render(request, 'recipes_site/addRecipe.html', {'form': form, 'moment': moment, 'ingredients': Ingredient.objects.all()})
+    recipe_get = requests.options(
+        "http://localhost:8000/rest/recipes/", auth=JWTAuth(token))
+    if recipe_get.status_code >= 400:
+        return login(request)
+    time_units = [k["display_name"] for k in recipe_get.json()["actions"]["POST"]["time_unit"]["choices"]]
+    categories = [k["display_name"] for k in recipe_get.json()["actions"]["POST"]["category"]["choices"]]
+    ingredients = [k["display_name"] for k in recipe_get.json()["actions"]["POST"]["moments"]["child"]
+    ["children"]["ingredients"]["child"]["children"]["ingredient"]["choices"]]
+
+    form = RecipeForm(time_units,categories)
+    moment = MomentForm(ingredients=ingredients)
+    return render(request, 'recipes_site/addRecipe.html', {'form': form, 'moment': moment})
 
 
 @csrf_exempt
 def create_quantity(request):
-    if not logged_in(request):
-        return login(request)
-    return render(request, 'recipes_site/addQuantity.html', {'name': 'Quantity', 'form': QuantityForm()})
+    token = request.COOKIES.get('token')
+    if not token:
+        return HttpResponseForbidden()
+    recipe_get = requests.options(
+        "http://localhost:8000/rest/quantities/", auth=JWTAuth(token))
+    if recipe_get.status_code >= 400:
+        return HttpResponseForbidden()
+    ingredients = [k["value"] for k in recipe_get.json()["actions"]["POST"]["ingredient"]["choices"]]
+    return render(request, 'recipes_site/addQuantity.html', {'name': 'Quantity', 'form': QuantityForm(ingredients=ingredients)})
 
 
 @csrf_exempt
 def create_moment(request):
     token = request.COOKIES.get('token')
     if not token:
-        return False
-    recipeGet = requests.options("http://localhost:8000/rest/recipes/", auth=
-    JWTAuth(token))
-    if recipeGet.status_code >= 400:
         return HttpResponseForbidden()
-    return render(request, 'recipes_site/addMoment.html', {'name': 'Moment', 'form': MomentForm()})
+    recipe_get = requests.options(
+        "http://localhost:8000/rest/moments/", auth=JWTAuth(token))
+    if recipe_get.status_code >= 400:
+        return HttpResponseForbidden()
+    ingredients = [k["value"] for k in recipe_get.json()["actions"]["POST"]["extra_ingredients"]["choices"]]
+
+    return render(request, 'recipes_site/addMoment.html', {'name': 'Moment', 'form': MomentForm(ingredients)})
 
 @csrf_exempt
 def login(request):
     return render(request, 'recipes_site/login.html')
-
-
-def logged_in(request):
-    token = request.COOKIES.get('token')
-    if not token:
-        return False
-    recipeGet = requests.get("http://localhost:8000/rest/recipes/", auth=
-    JWTAuth(token))
-    if recipeGet.status_code >= 400:
-        return False
-    return True

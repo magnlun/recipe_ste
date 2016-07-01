@@ -18,24 +18,32 @@
                     var ingredient = lastChild.querySelectorAll('[name=ingredient]')[0];
                     $(ingredient).chosen()
                 }
+                if (xhttp.readyState === 4 && xhttp.status === 403) {
+                    window.open("{% url 'recipes_site:login' %}");
+                }
             };
             xhttp.open("GET", "{% url 'recipes_site:add-quantity' %}", true);
             xhttp.send();
         }
         function addMoment() {
             "use strict";
-            var xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function () {
-                if (xhttp.readyState === 4 && xhttp.status === 200) {
-                    $("#moment").append(xhttp.responseText);
-                    $("#moment select:last").chosen()
+            $.ajax( {
+                url: "{% url 'recipes_site:add-moment' %}",
+                method: "GET",
+                error: function(xhr, ajaxOptions, thrownError) {
+                    if(xhr.status==403) {
+                      window.open("http://localhost:8000{% url 'recipes_site:login' %}", 'window name', 'window settings');
+                    }
+                },
+                success: function(data) {
+                    $("#moment").append(data);
+                    $("#moment select:last").chosen();
                 }
-            };
-            xhttp.open("GET", "{% url 'recipes_site:add-moment' %}", true);
-            xhttp.send();
+            });
         }
 
     </script>
+
     <script src="{% static 'recipes_site/script.js' %}"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
 

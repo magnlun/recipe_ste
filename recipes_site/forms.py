@@ -5,7 +5,15 @@ from itertools import chain
 
 
 class RecipeForm(ModelForm):
+
     source = forms.CharField()
+
+    def __init__(self, time_units, categories):
+        super().__init__()
+        self.time_unit = forms.ChoiceField()
+        self.time_unit.widget = forms.Select(choices=time_units)
+        self.category = forms.ChoiceField()
+        self.category.widget = forms.SelectMultiple(choices=categories)
 
     class Meta:
         model = Recipe
@@ -13,6 +21,12 @@ class RecipeForm(ModelForm):
 
 
 class MomentForm(ModelForm):
+
+    def __init__(self, ingredients):
+        self.extra_ingredients = forms.ChoiceField()
+        self.extra_ingredients.widget = forms.SelectMultiple(choices=ingredients)
+        super().__init__()
+
     class Meta:
         model = Moment
         exclude = ('recipe','ingredients')
@@ -34,6 +48,7 @@ class QuantityForm(ModelForm):
         self.ingredient = forms.ChoiceField()
         self.ingredient.widget = forms.Select(choices=ingredients,
                                      attrs=settings)
+
         super().__init__()
 
     class Meta:

@@ -29,14 +29,15 @@
                 },
                 success: function(data) {
                     $(document.getElementById("errorText")).html(data.token);
-                    //$.cookie("token",data.token);
-                    document.cookie = "token=" + encodeURIComponent(data.token)
+                    Cookies.set("token",data.token);
+                    //document.cookie = "token=" + encodeURIComponent(data.token)
                     window.location.replace( {% url 'recipes_site:index' %} );
                 }
             });
 
         }
     </script>
+    <script src="{% static 'recipes_site/js.cookie.js' %}"></script>
 </head>
 <body>
 <p>Username:</p><input id="username"/><br />
