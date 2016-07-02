@@ -1,5 +1,8 @@
 from rest_framework import viewsets, permissions, mixins
 from django.db.models import F
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from django.http import Http404
 
 from .permissions import IsOwnerOrReadOnly
 from .serializers import *
@@ -26,6 +29,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)
 
+
+class QuantitySearch(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    serializer_class = RecipeSerializer
+    queryset = Recipe.objects.all()
+
+    def retrieve(self, request, *args, **kwargs):
+        if kwargs["pk"]:
+            moment = kwargs.pop("pk")
+            recipe = get_object_or_404(Moment, pk=moment).recipe
+            serializer = self.get_serializer(recipe, context={'request': request}, *args,**kwargs)
+            return Response(serializer.data)
+        raise Http404("Moment does not exist")
+
+    def get_serializer(self, *args, **kwargs):
+        request = self.get_serializer_context()['request']
+
+        if 'fields' in request.query_params and request.query_params['fields']:
+            kwargs['fields'] = request.query_params['fields'].split(',')
+
+        return super(QuantitySearch, self).get_serializer(*args, **kwargs)
 
 class QuantityViewSet(mixins.CreateModelMixin,
                       mixins.RetrieveModelMixin,

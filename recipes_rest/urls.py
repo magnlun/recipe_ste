@@ -11,6 +11,7 @@ router.register(r'ingredients', IngredientViewSet)
 router.register(r'users', UserViewSet)
 router.register(r'categories', CategoryViewSet)
 router.register(r'moments', MomentViewSet)
+router.register(r'momentfilter', QuantitySearch)
 
 urlpatterns = [
     url(r'^', include(router.urls)),

@@ -18,6 +18,10 @@
     {% if moment.instructions %}
     {{ moment.instructions|linebreaks }}
     {% else %}
+    {% if recipe %}
     {{ recipe.description|linebreaks }}
+    {% else %}
+    {{ description|linebreaks }}
+    {% endif %}
     {% endif %}
 </p>

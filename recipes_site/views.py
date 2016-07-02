@@ -46,7 +46,15 @@ def instructions(request, moment_id):
     if recipe_get.status_code >= 400:
         return login(request)
     moment = recipe_get.json()
-    parameters = {'moment': moment, 'recipe': moment}
+    if not moment["instructions"]:
+        description_get = requests.get(
+            "http://localhost:8000/rest/momentfilter/" + moment_id + "/?fields=description", auth=JWTAuth(token))
+        if description_get.status_code >= 400:
+            return login(request)
+        description = description_get.json()
+        parameters = {'moment': moment, 'description': description['description']}
+    else:
+        parameters = {'moment': moment}
     return render(request, 'recipes_site/instructions.html', parameters)
 
 
